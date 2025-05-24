@@ -1,2 +1,2 @@
 MAP API KEY: not_required
-Deployment URL: https://github.com/ihsanbisbox/story-app.git
+Deployment URL: https://ihsanbisbox.github.io/story-app
