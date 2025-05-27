@@ -9,6 +9,6 @@ export const API_CONFIG = {
       STORIES_GUEST: '/stories/guest',
       STORY_DETAIL: (id) => `/stories/${id}`,
       SUBSCRIBE: '/notifications/subscribe',
-      UNSUBSCRIBE: '/notifications/subscribe',
+      UNSUBSCRIBE: '/notifications/unsubscribe',
     }
   };

@@ -3,7 +3,7 @@ import Router from './router';
 import Navigation from './views/components/Navigation';
 import AuthService from './services/auth-service';
 import NotificationService from './services/notification-service';
-import SkipToContent from './views/components/SkipToContent'; // Add this import
+import SkipToContent from './views/components/SkipToContent';
 
 class App {
   constructor() {
@@ -31,9 +31,10 @@ class App {
         const registration = await navigator.serviceWorker.register(swPath);
         console.log('Service Worker registered:', registration);
         
-        // Initialize push notifications
+        // Initialize push notifications ONLY ONCE HERE
         if (AuthService.isAuthenticated()) {
-          await NotificationService.init(registration);
+          const notificationInitialized = await NotificationService.init(registration);
+          console.log('Push notification initialized:', notificationInitialized);
         }
       } catch (error) {
         console.error('Service Worker registration failed:', error);
@@ -47,8 +48,16 @@ class App {
     this.router.init();
 
     // Listen for auth state changes
-    window.addEventListener('auth-changed', () => {
+    window.addEventListener('auth-changed', async () => {
       this.navigation.render();
+      
+      // Re-initialize notifications when user logs in
+      if (AuthService.isAuthenticated() && 'serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          await NotificationService.init(registration);
+        }
+      }
     });
     
     // Ensure the main content area has the correct ID and is focusable

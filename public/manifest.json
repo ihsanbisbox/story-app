@@ -11,6 +11,7 @@
   "lang": "id",
   "dir": "ltr",
   "categories": ["social", "lifestyle"],
+  "permissions": ["notifications"],
   "icons": [
     {
       "src": "/images/icons/icon-72x72.png",

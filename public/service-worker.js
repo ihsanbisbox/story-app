@@ -203,27 +203,37 @@ async function doBackgroundSync() {
   console.log("Service Worker: Performing background sync");
 }
 
-// Push notification (optional)
+// Push notification handler
 self.addEventListener('push', (event) => {
-  console.log("Service Worker: Push received");
+  console.log('[Service Worker] Push Received');
   
+  // Parse the push notification data
+  let pushData = {};
+  try {
+    pushData = event.data ? event.data.json() : {};
+  } catch (e) {
+    pushData = {
+      title: 'DStory',
+      body: event.data ? event.data.text() : 'Notifikasi baru dari DStory',
+      icon: '/images/icons/icon-192x192.png'
+    };
+  }
+
+  const title = pushData.title || 'DStory';
   const options = {
-    body: event.data ? event.data.text() : 'Notifikasi baru dari DStory',
-    icon: '/images/icons/icon-192x192.png',
+    body: pushData.body || 'Notifikasi baru tersedia',
+    icon: pushData.icon || '/images/icons/icon-192x192.png',
     badge: '/images/icons/icon-72x72.png',
+    data: pushData.data || { url: pushData.url || '/' },
     vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
-    },
-    actions: [
+    actions: pushData.actions || [
       {
-        action: 'explore',
-        title: 'Lihat Cerita',
+        action: 'open',
+        title: 'Buka Aplikasi',
         icon: '/images/icons/view-icon.png'
       },
       {
-        action: 'close',
+        action: 'dismiss',
         title: 'Tutup',
         icon: '/images/icons/close-icon.png'
       }
@@ -231,18 +241,27 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification('DStory', options)
+    self.registration.showNotification(title, options)
   );
 });
 
-// Notification click
+// Notification click handler
 self.addEventListener('notificationclick', (event) => {
-  console.log("Service Worker: Notification clicked");
+  console.log('[Service Worker] Notification click Received');
   event.notification.close();
 
-  if (event.action === 'explore') {
+  const urlToOpen = event.notification.data.url || '/';
+
+  if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('/')
+      clients.openWindow(urlToOpen)
+    );
+  } else if (event.action === 'dismiss') {
+    // Do nothing
+  } else {
+    // Default behavior when notification is clicked
+    event.waitUntil(
+      clients.openWindow(urlToOpen)
     );
   }
 });
